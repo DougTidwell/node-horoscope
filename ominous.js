@@ -1,15 +1,19 @@
 // ominous.js - Ominous horoscope service
-var express = require('express');
-app = express();
-port = process.env.PORT || 3000;
+
+const express = require('express');
+let app = express();
+let port = process.env.PORT || 3000;
+
+const { handleCors } = require("./handleCors");
 
 const serviceName = 'Ominous';
 const css = 'color: red;';
-var horoscopeText;
+let horoscopeText;
 
-getHoroscope = function(req, res){
+let getHoroscope = function(req, res){
     const caseNeutralSign = req.params.sign.toLowerCase();
-    console.log(`  Getting horoscope for ${req.params.sign}`);
+
+    console.log(`  Getting horoscope for ${caseNeutralSign}`);
     if (caseNeutralSign === 'aries')
         horoscopeText = 'The stars won\'t say exactly what will happen today, \
 but they suggest you say goodbye to your friends and loved ones.';
@@ -54,20 +58,12 @@ wearing brass knuckles. ';
     else
         horoscopeText = 'Sorry, you need to tell me your sign.';
 
-    res.set({'Access-Control-Allow-Origin': '*',
+    res.set({'Access-Control-Allow-Origin': req.header('Origin'),
         'Content-Type': 'application/json'})
         .json({'serviceName': serviceName,
             'horoscopeText': horoscopeText,
             'css': css});
 };
-
-handleCors = function(req, res) {
-    res.header('Access-Control-Allow-Origin', req.header('Origin'));
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.header('Access-Control-Allow-Headers',
-        'Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.sendStatus(200);
-}
 
 app.route('/horoscope/:sign')
     .get(getHoroscope)
